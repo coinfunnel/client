@@ -1,0 +1,9 @@
+{
+  "name": "production",
+  "domain": "app.example.com",
+  "description": "APP DESC GOES HERE",
+  "charity_sync_duration": "10000",
+  "charity_unavailable_sync_duration": "5000",
+  "charity_url": "http://10.0.2.2:3000/client",
+  "charity_url_timeout": "5000"
+}
