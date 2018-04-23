@@ -233,32 +233,12 @@ export default class MiningPage extends React.Component {
   render () {
     return (
       <div>
-        <ToggleDisplay show={this.state.panelDeleteCharity} tag="div">
-          <DeleteCharityPanel parent={this} />
-        </ToggleDisplay>
-
         <ToggleDisplay show={this.state.panelUpdating} tag="div">
           <UpdatingPanel />
         </ToggleDisplay>
 
-        <ToggleDisplay show={this.state.panelErrNetworkOffline} tag="div">
-          <NetworkOfflinePanel />
-        </ToggleDisplay>
-
-        <ToggleDisplay show={this.state.panelErrWebsiteTimeout} tag="div">
-          <WebsiteTimeoutPanel />
-        </ToggleDisplay>
-
-        <ToggleDisplay show={this.state.panelFailCharityOffline} tag="div">
-          <CharityOfflinePanel parent={this} />
-        </ToggleDisplay>
-
-        <ToggleDisplay show={this.state.panelErrUnknown} tag="div">
-          <UnknownErrorPanel />
-        </ToggleDisplay>
-
-        <ToggleDisplay show={this.state.panelFailUnknown} tag="div">
-          <UnknownFailPanel />
+        <ToggleDisplay show={this.state.panelDeleteCharity} tag="div">
+          <DeleteCharityPanel parent={this} />
         </ToggleDisplay>
 
         <ToggleDisplay show={this.state.panelCharityDetails} tag="div">
@@ -286,6 +266,27 @@ export default class MiningPage extends React.Component {
             </div>
           </div>
         </ToggleDisplay>
+
+        <ToggleDisplay show={this.state.panelErrNetworkOffline} tag="div">
+          <NetworkOfflinePanel />
+        </ToggleDisplay>
+
+        <ToggleDisplay show={this.state.panelErrWebsiteTimeout} tag="div">
+          <WebsiteTimeoutPanel />
+        </ToggleDisplay>
+
+        <ToggleDisplay show={this.state.panelFailCharityOffline} tag="div">
+          <CharityOfflinePanel parent={this} />
+        </ToggleDisplay>
+
+        <ToggleDisplay show={this.state.panelErrUnknown} tag="div">
+          <UnknownErrorPanel />
+        </ToggleDisplay>
+
+        <ToggleDisplay show={this.state.panelFailUnknown} tag="div">
+          <UnknownFailPanel />
+        </ToggleDisplay>
+        
 
         <ToggleDisplay show={this.state.panelActiveMining} tag="div">
           <div className="container">

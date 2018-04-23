@@ -3,11 +3,6 @@
 import React from 'react'
 import ToggleDisplay from 'react-toggle-display'
 import Synchronise from '../../Synchronise'
-import NetworkOfflinePanel from '../panels/NetworkOfflinePanel.jsx'
-import WebsiteTimeoutPanel from '../panels/WebsiteTimeoutPanel.jsx'
-import UnknownErrorPanel from '../panels/UnknownErrorPanel.jsx'
-import CharityOfflinePanel from '../panels/CharityOfflinePanel.jsx'
-import UnknownFailPanel from '../panels/UnknownFailPanel.jsx'
 import UpdatingPanel from '../panels/UpdatingPanel.jsx'
 
 let prc = null
@@ -149,26 +144,6 @@ export default class AddCharityPage extends React.Component {
   render () {
     return (
       <div>
-        <ToggleDisplay show={this.state.panelErrNetworkOffline} tag="div">
-          <NetworkOfflinePanel />
-        </ToggleDisplay>
-
-        <ToggleDisplay show={this.state.panelErrWebsiteTimeout} tag="div">
-          <WebsiteTimeoutPanel />
-        </ToggleDisplay>
-
-        <ToggleDisplay show={this.state.panelErrUnknown} tag="div">
-          <UnknownErrorPanel />
-        </ToggleDisplay>
-
-        <ToggleDisplay show={this.state.panelFailCharityOffline} tag="div">
-          <CharityOfflinePanel parent={this} />
-        </ToggleDisplay>
-
-        <ToggleDisplay show={this.state.panelFailUnknown} tag="div">
-          <UnknownFailPanel />
-        </ToggleDisplay>
-
         <ToggleDisplay show={this.state.panelUpdating} tag="div">
           <UpdatingPanel />
         </ToggleDisplay>
@@ -179,18 +154,36 @@ export default class AddCharityPage extends React.Component {
               <div className="col add-section section">
 
                 <h1>Add charity ID</h1>
-                
-                { this.state.showFailValidate ?
-                  <div>
-                    FAILED VALIDATION
-                  </div>
-                : null }
 
-                { this.state.panelFailPermanentDeleted ?
-                  <div>
+                <div className="error-message">
+                  <ToggleDisplay show={this.state.panelErrNetworkOffline} tag="div">
+                    You are currently offline. Please reconnect to resume mining.
+                  </ToggleDisplay>
+
+                  <ToggleDisplay show={this.state.panelErrWebsiteTimeout} tag="div">
+                    The server timed out. Please try again.
+                  </ToggleDisplay>
+
+                  <ToggleDisplay show={this.state.panelErrUnknown} tag="div">
+                    An error occurred, please try again.
+                  </ToggleDisplay>
+
+                  <ToggleDisplay show={this.state.panelFailUnknown} tag="div">
+                    The server is experiencing problems, please try again in a few seconds.
+                  </ToggleDisplay>
+
+                  <ToggleDisplay show={this.state.panelFailCharityOffline} tag="div">
+                    The charity is temporarily offline. Please try another charity.
+                  </ToggleDisplay>
+
+                  <ToggleDisplay show={this.state.showFailValidate} tag="div">
+                    FAILED VALIDATION
+                  </ToggleDisplay>
+
+                  <ToggleDisplay show={this.state.panelFailPermanentDeleted} tag="div">
                     The charity has been permanently deleted from the site
-                  </div>
-                : null }
+                  </ToggleDisplay>
+                </div>
 
                 <div>
                   <input
