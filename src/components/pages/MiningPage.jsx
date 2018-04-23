@@ -290,28 +290,24 @@ export default class MiningPage extends React.Component {
         <ToggleDisplay show={this.state.panelActiveMining} tag="div">
           <div className="container">
             <div className="row">
-              <div className="col">
-                <div className="mining-section section">
-                  <h1>Mining status</h1>
-                  
-                    {this.state.image1 ?
-                      <div>
-                        <img src={this.state.image1} width="200" height="150" />
-                        {this.state.image2 ?
-                          <img src={this.state.image2} width="200" height="150" />
-                        : null}
-                        {this.state.image3 ?
-                          <img src={this.state.image3} width="200" height="150" />
-                        : null}
-                      </div>
+              <div className="col mining-section section">
+                {this.state.image1 ?
+                  <div>
+                    <img src={this.state.image1} width="200" height="150" />
+                    {this.state.image2 ?
+                      <img src={this.state.image2} width="200" height="150" />
                     : null}
+                    {this.state.image3 ?
+                      <img src={this.state.image3} width="200" height="150" />
+                    : null}
+                  </div>
+                : null}
 
-                    <button className="btn btn-primary" disabled={this.state.disableStartBtn} onClick={this.handleStart}>Start mining</button>
-                    <button className="btn btn-primary" disabled={this.state.disableStopBtn} onClick={this.handleStop}>Stop mining</button>
-                    <button className="btn btn-primary" onClick={this.handleCharityDetails}>Charity info</button>
-                    <button className="btn btn-primary" onClick={this.handleMiningStats}>Mining stats</button>
-                    <button className="btn btn-primary" onClick={this.handleDeleteChallenge}>Delete charity</button>
-                </div>
+                <button className="btn btn-primary" disabled={this.state.disableStartBtn} onClick={this.handleStart}>Start mining</button>
+                <button className="btn btn-primary" disabled={this.state.disableStopBtn} onClick={this.handleStop}>Stop mining</button>
+                <button className="btn btn-primary" onClick={this.handleCharityDetails}>Charity info</button>
+                <button className="btn btn-primary" onClick={this.handleMiningStats}>Mining stats</button>
+                <button className="btn btn-primary" onClick={this.handleDeleteChallenge}>Delete charity</button>
               </div>
             </div>
           </div>

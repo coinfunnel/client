@@ -1,7 +1,14 @@
 'use strict'
 
 import React from 'react'
+import ToggleDisplay from 'react-toggle-display'
 import Synchronise from '../../Synchronise'
+import NetworkOfflinePanel from '../panels/NetworkOfflinePanel.jsx'
+import WebsiteTimeoutPanel from '../panels/WebsiteTimeoutPanel.jsx'
+import UnknownErrorPanel from '../panels/UnknownErrorPanel.jsx'
+import CharityOfflinePanel from '../panels/CharityOfflinePanel.jsx'
+import UnknownFailPanel from '../panels/UnknownFailPanel.jsx'
+import UpdatingPanel from '../panels/UpdatingPanel.jsx'
 
 let prc = null
 
@@ -10,93 +17,93 @@ export default class AddCharityPage extends React.Component {
     super(props)
     this.state = { 
       charityCode: '',
-      showErrNetworkOffline: false,
-      showErrWebsiteTimeout: false,
-      showErrUnknown: false,
+      panelErrNetworkOffline: false,
+      panelErrWebsiteTimeout: false,
+      panelErrUnknown: false,
       showFailValidate: false,
-      showFailPermanentDeleted: false,
-      showFailCharityOffline: false,
-      showFailUnknown: false,
-      showSuccessAdd: false,
-      showSuccessUpdating: false
+      panelFailPermanentDeleted: false,
+      panelFailCharityOffline: false,
+      panelFailUnknown: false,
+      panelAddCharity: false,
+      panelUpdating: false
     }
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   componentDidMount () {
     this.setState({
-      showErrNetworkOffline: false,
-      showErrWebsiteTimeout: false,
-      showErrUnknown: false,
+      panelErrNetworkOffline: false,
+      panelErrWebsiteTimeout: false,
+      panelErrUnknown: false,
       showFailValidate: false,
-      showFailPermanentDeleted: false,
-      showFailCharityOffline: false,
-      showFailUnknown: false,
-      showSuccessAdd: true,
-      showSuccessUpdating: false
+      panelFailPermanentDeleted: false,
+      panelFailCharityOffline: false,
+      panelFailUnknown: false,
+      panelAddCharity: true,
+      panelUpdating: false
     })
   }
 
   handleError (code) {
     if (code === 'ENOTFOUND') {
       this.setState({ 
-        showSuccessUpdating: false,
-        showErrNetworkOffline: true,
-        showSuccessAdd: true
+        panelUpdating: false,
+        panelErrNetworkOffline: true,
+        panelAddCharity: true
       })
       return
     }
 
     if (code === 'ETIMEDOUT' || code === 'ECONNREFUSED') {
       this.setState({
-        showSuccessUpdating: false,
-        showErrWebsiteTimeout: true,
-        showSuccessAdd: true
+        panelUpdating: false,
+        panelErrWebsiteTimeout: true,
+        panelAddCharity: true
       })
       return
     }
 
     console.log('Handling unknown error')
     this.setState({
-      showSuccessUpdating: false,
-      showErrUnknown: true,
-      showSuccessAdd: true
+      panelUpdating: false,
+      panelErrUnknown: true,
+      panelAddCharity: true
     })
   }
 
   handleFail (statusCode) {
     if (statusCode === 400) {
       this.setState({ 
-        showSuccessUpdating: false,
+        panelUpdating: false,
         showFailValidate: true,
-        showSuccessAdd: true
+        panelAddCharity: true
       })
       return
     }
 
     if (statusCode === 404) {
       this.setState({ 
-        showSuccessUpdating: false,
-        showFailPermanentDeleted: true,
-        showSuccessAdd: true
+        panelUpdating: false,
+        panelFailPermanentDeleted: true,
+        panelAddCharity: true
       })
       return
     }
 
     if (statusCode === 422) {
       this.setState({ 
-        showSuccessUpdating: false,
-        showFailCharityOffline: true,
-        showSuccessAdd: true
+        panelUpdating: false,
+        panelFailCharityOffline: true,
+        panelAddCharity: true
       })
       return
     }
 
     console.log('Handling unknown fail')
     this.setState({ 
-      showSuccessUpdating: false,
-      showFailUnknown: true,
-      showSuccessAdd: true
+      panelUpdating: false,
+      panelFailUnknown: true,
+      panelAddCharity: true
     })
   }
 
@@ -116,15 +123,15 @@ export default class AddCharityPage extends React.Component {
     try {
       console.log('ADD SYNCING...')
       this.setState({
-        showErrNetworkOffline: false,
-        showErrWebsiteTimeout: false,
-        showErrUnknown: false,
+        panelErrNetworkOffline: false,
+        panelErrWebsiteTimeout: false,
+        panelErrUnknown: false,
         showFailValidate: false,
-        showFailPermanentDeleted: false,
-        showFailCharityOffline: false,
-        showFailUnknown: false,
-        showSuccessAdd: false,
-        showSuccessUpdating: true
+        panelFailPermanentDeleted: false,
+        panelFailCharityOffline: false,
+        panelFailUnknown: false,
+        panelAddCharity: false,
+        panelUpdating: true
       })
 
       const resource = await this.synchronise.getUrl()
@@ -141,58 +148,50 @@ export default class AddCharityPage extends React.Component {
 
   render () {
     return (
-      <div className="container">
-        <div className="row">
-          <div className="col">
+      <div>
+        <ToggleDisplay show={this.state.panelErrNetworkOffline} tag="div">
+          <NetworkOfflinePanel />
+        </ToggleDisplay>
 
-            <div className="add-section section">
-              <h1>Add charity ID</h1>
+        <ToggleDisplay show={this.state.panelErrWebsiteTimeout} tag="div">
+          <WebsiteTimeoutPanel />
+        </ToggleDisplay>
 
-              { this.state.showErrNetworkOffline ?
-                <div>
-                  You are currently offline. Please reconnect to resume mining.
-                </div>
-              : null }
+        <ToggleDisplay show={this.state.panelErrUnknown} tag="div">
+          <UnknownErrorPanel />
+        </ToggleDisplay>
 
-              { this.state.showErrWebsiteTimeout ?
-                <div>
-                  The server timed out. Please try again.
-                </div>
-              : null }
+        <ToggleDisplay show={this.state.panelFailCharityOffline} tag="div">
+          <CharityOfflinePanel parent={this} />
+        </ToggleDisplay>
 
-              { this.state.showErrUnknown ?
-                <div>
-                  An error occurred. Please try again.
-                </div>
-              : null }
+        <ToggleDisplay show={this.state.panelFailUnknown} tag="div">
+          <UnknownFailPanel />
+        </ToggleDisplay>
 
-              
-              { this.state.showFailValidate ?
-                <div>
-                  FAILED VALIDATION
-                </div>
-              : null }
+        <ToggleDisplay show={this.state.panelUpdating} tag="div">
+          <UpdatingPanel />
+        </ToggleDisplay>
 
-              { this.state.showFailPermanentDeleted ?
-                <div>
-                  The charity has been permanently deleted from the site
-                </div>
-              : null }
+        <ToggleDisplay show={this.state.panelAddCharity} tag="div">
+          <div className="container">
+            <div className="row">
+              <div className="col add-section section">
 
-              { this.state.showFailCharityOffline ?
-                <div>
-                  The charity is temporarily offline
-                </div>
-              : null }
+                <h1>Add charity ID</h1>
+                
+                { this.state.showFailValidate ?
+                  <div>
+                    FAILED VALIDATION
+                  </div>
+                : null }
 
-              { this.state.showFailUnknown ?
-                <div>
-                  Something went wrong. Please try again.
-                </div>
-              : null }
+                { this.state.panelFailPermanentDeleted ?
+                  <div>
+                    The charity has been permanently deleted from the site
+                  </div>
+                : null }
 
-
-              { this.state.showSuccessAdd ?
                 <div>
                   <input
                     type="text" 
@@ -201,17 +200,11 @@ export default class AddCharityPage extends React.Component {
                   />
                   <button className="btn btn-primary" onClick={this.handleSubmit}>Add</button>
                 </div>
-              : null }
-
-              { this.state.showSuccessUpdating ?
-                <div>
-                  UPDATING!!!!!
-                </div>
-              : null }
+                
+              </div>
             </div>
-            
           </div>
-        </div>
+        </ToggleDisplay>
       </div>
     )
   }
