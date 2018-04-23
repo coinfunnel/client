@@ -1,9 +1,8 @@
 'use strict'
 
 import React from 'react'
-import Charity from '../../Charity'
 
-export default class DeleteCharityPage extends React.Component {
+export default class DeleteCharityPanel extends React.Component {
   constructor (props) {
     super(props)
     this.handleDeleteConfirm = this.handleDeleteConfirm.bind(this)
@@ -11,12 +10,11 @@ export default class DeleteCharityPage extends React.Component {
   }
 
   handleDeleteConfirm () {
-    Charity.remove()
-    this.props.history.push('/add')
+    this.props.parent.handleDelete()
   }
 
   handleDeleteCancel () {
-    this.props.history.push(`/mine/${this.props.match.params.charityId}`)
+    this.props.parent.handleDeleteChallengeOff()
   }
 
   render () {

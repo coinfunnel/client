@@ -6,7 +6,6 @@ import Layout from './Layout.jsx'
 import LandingPage from './pages/LandingPage.jsx'
 import AddCharityPage from './pages/AddCharityPage.jsx'
 import MiningPage from './pages/MiningPage.jsx'
-import DeleteCharityPage from './pages/DeleteCharityPage.jsx'
 import GonePage from './pages/GonePage.jsx'
 
 export default class AppRoutes extends React.Component {
@@ -18,7 +17,6 @@ export default class AppRoutes extends React.Component {
             <Route exact path="/" component={LandingPage} />
             <Route exact path="/add" component={AddCharityPage} />
             <Route exact path="/mine/:charityId" component={MiningPage} />
-            <Route exact path="/delete/:charityId" component={DeleteCharityPage} />
             <Route exact path="/gone" component={GonePage} />
           </Switch>
         </Layout>

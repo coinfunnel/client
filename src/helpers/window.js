@@ -9,10 +9,14 @@ import jetpack from "fs-jetpack";
 export default (name, options) => {
   const userDataDir = jetpack.cwd(app.getPath("userData"));
   const stateStoreFile = `window-state-${name}.json`;
+
   const defaultSize = {
     width: options.width,
-    height: options.height
+    height: options.height,
+    resizable: false,
+    maximizable: false
   };
+
   let state = {};
   let win;
 
@@ -74,11 +78,10 @@ export default (name, options) => {
     userDataDir.write(stateStoreFile, state, { atomic: true });
   };
 
-  state = ensureVisibleOnSomeDisplay(restore());
+  state = ensureVisibleOnSomeDisplay(restore())
 
-  win = new BrowserWindow(Object.assign({}, options, state));
-
-  win.on("close", saveState);
+  win = new BrowserWindow(Object.assign({}, options, state))
+  win.on("close", saveState)
 
   return win;
 };
