@@ -49,11 +49,8 @@ export default class MiningPage extends React.Component {
 
   /**
    * Called by the miner process when it is terminated unexpectedly.
-   * @todo
-   * Display an error message
    */
   notifyUnexpectedTermination () {
-    console.log('The mining page has been notified that the miner has stopped unexpectedly. IMPLEMENT!')
     this.handleStop()
     this.setState({
       msgMinerUnexpectedTerm: true
@@ -269,9 +266,9 @@ export default class MiningPage extends React.Component {
           <div className="row">
             <div className="col">
               <h1>Mining Statistics</h1>
-              <div>Hash rate: HERE</div>
-              <div>Hash rate: HERE</div>
-              <div>Hash rate: HERE</div>
+              <div>Hash rate (number of guesses per second): {this.miner.getMiningInfo().hashRateTotal60Sec}</div>
+              <div>Total hashes (total guesses): {this.miner.getMiningInfo().totalHashes}</div>
+              <div>Number of CPU cores used: {this.miner.getMiningInfo().threadCount}</div>
               <button className="btn btn-primary" onClick={this.handleMiningStatsOff}>OK</button>
             </div>
           </div>

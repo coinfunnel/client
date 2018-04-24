@@ -25,8 +25,8 @@ export default class Miner {
     const apiRefresh = ipcRenderer.sendSync('get-miner-api-refresh', {})
     const apiTimeout = ipcRenderer.sendSync('get-miner-api-timeout', {})
 
+    this.resetMiningInfo()
     this.isPermittedTermination = false
-    this.miningInfo = null
     this.miningInfoRefreshId = null
     this.miningInfoRefreshDuration = apiRefresh
     this.miningInfoRefreshTimeout = apiTimeout
@@ -116,21 +116,26 @@ export default class Miner {
   reset () {
     this.prc = null
     this.walletAddress = null
+    this.resetMiningInfo()
     if (this.miningInfoRefreshId) {
       clearTimeout(this.miningInfoRefreshId)
     }
   }
 
-  // @todo
+  resetMiningInfo () {
+    this.miningInfo = {
+      hashRateTotal3Sec: 'Loading...',
+      hashRateTotal60Sec: 'Loading...',
+      hashRateTotal15Min: 'Loading...',
+      totalHashes: 'Loading...',
+      threadCount: 'Loading...'
+    }
+  }
+
   // Use this method to display the current hashrate on the screen
   // Pass either the miner, or this method, or the return from this
   // method to the Stats page for display.
   getMiningInfo () {
-    if (!this.miningInfo) {
-      return {}
-    }
-    return {
-      hashRate: this.miningInfo.hashRate
-    }
+    return this.miningInfo
   }
 }
