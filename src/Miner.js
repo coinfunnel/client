@@ -124,11 +124,11 @@ export default class Miner {
 
   resetMiningInfo () {
     this.miningInfo = {
-      hashRateTotal3Sec: 'Loading...',
-      hashRateTotal60Sec: 'Loading...',
-      hashRateTotal15Min: 'Loading...',
-      totalHashes: 'Loading...',
-      threadCount: 'Loading...'
+      hashRateTotal3Sec: 'Waiting...',
+      hashRateTotal60Sec: 'Waiting...',
+      hashRateTotal15Min: 'Waiting...',
+      totalHashes: 'Waiting...',
+      threadCount: 'Waiting...'
     }
   }
 
