@@ -4,7 +4,7 @@ import { ipcMain } from 'electron'
 import Store from 'electron-store'
 import env from 'env'
 
-const store = new Store()
+const store = new Store({ encryptionKey: 'providesomeobscurity' })
 
 ipcMain.on('get-miner-api-port', (event, arg) => {
   event.returnValue = env.api_port
@@ -54,23 +54,16 @@ ipcMain.on('set-charity', (event, charity) => {
   store.set('charity.id', charity.id)
   store.set('charity.name', charity.name)
   store.set('charity.country', charity.country)
-  store.set('charity.walletAddress', charity.walletAddress)
-  store.set('charity.notice', charity.notice)
-  store.set('charity.isMiningAllowed', charity.isMiningAllowed)
+  store.set('charity.isOnline', charity.isOnline)
+  store.set('charity.offlineNotice', charity.offlineNotice)
+  store.set('charity.wallet', charity.wallet)
+  store.set('charity.image1', charity.image1)
+  store.set('charity.image2', charity.image2)
+  store.set('charity.image3', charity.image3)
   event.returnValue = null
 })
 
 ipcMain.on('delete-charity', (event, arg) => {
-  // @todo
-  // can we just use:  store.delete('charity') ?
-  store.delete('charity.id')
-  store.delete('charity.name')
-  store.delete('charity.country')
-  store.delete('charity.walletAddress')
-  store.delete('charity.notice')
-  store.delete('charity.isMiningAllowed')
+  store.delete('charity')
   event.returnValue = null
 })
-
-// app_sync_duration
-// app_notices[]
