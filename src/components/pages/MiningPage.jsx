@@ -18,14 +18,8 @@ export default class MiningPage extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
-      charityId: null,
-      name: null,
-      country: null,
-      isOnline: false,
-      offlineNotice: null,
-      image1: null,
-      image2: null,
-      image3: null,
+      charity: new Charity({}),
+      msgMinerUnexpectedTerm: false,
       panelDeleteCharity: false,
       panelCharityDetails: false,
       panelErrNetworkOffline: false,
@@ -50,7 +44,20 @@ export default class MiningPage extends React.Component {
     this.handleDeleteChallenge = this.handleDeleteChallenge.bind(this)
     this.handleDeleteChallengeOff = this.handleDeleteChallengeOff.bind(this)
     this.handleDelete = this.handleDelete.bind(this)
-    this.miner = new Miner()
+    this.miner = new Miner(this)
+  }
+
+  /**
+   * Called by the miner process when it is terminated unexpectedly.
+   * @todo
+   * Display an error message
+   */
+  notifyUnexpectedTermination () {
+    console.log('The mining page has been notified that the miner has stopped unexpectedly. IMPLEMENT!')
+    this.handleStop()
+    this.setState({
+      msgMinerUnexpectedTerm: true
+    })
   }
 
   handleError (code) {
@@ -162,15 +169,10 @@ export default class MiningPage extends React.Component {
       panelActiveMining: true,
       panelDeleteCharity: false
     })
-    /*
-    this.handleStop()
-    this.props.history.push(`/delete/${this.state.charityId}`)
-    */
   }
 
   componentDidMount () {
     console.log('Starting synchronisation in mining page')
-    this.setState({ charityId: this.props.match.params.charityId })
     this.synchronise = new Synchronise(this, this.props.match.params.charityId)
     this.handleStart()
   }
@@ -184,6 +186,7 @@ export default class MiningPage extends React.Component {
     try {
       console.log('SYNCING...')
       this.setState({
+        msgMinerUnexpectedTerm: false,
         panelCharityDetails: false,
         panelErrNetworkOffline: false,
         panelErrWebsiteTimeout: false,
@@ -202,22 +205,29 @@ export default class MiningPage extends React.Component {
       } else {
         resource.body = resource.body ? JSON.parse(resource.body) : {}
         const charity = new Charity(resource.body)
-        charity.id = this.state.charityId
         Charity.save(charity)
 
+        // Wallet changes will require a miner restart.
+        let isWalletChanged = true
+        if (this.state.charity) {
+          if (this.state.charity.wallet === charity.wallet) {
+            isWalletChanged = false
+          }
+        }
+
         this.setState({
-          charityId: charity.id,
-          name: charity.name,
-          country: charity.country,
-          isOnline: charity.isOnline,
-          offlineNotice: charity.offlineNotice,
-          image1: charity.image1,
-          image2: charity.image2,
-          image3: charity.image3,
+          charity: charity,
           panelUpdating: false,
           panelActiveMining: true
         })
 
+        // Update the miner.
+        if (this.miner.isRunning() && !isWalletChanged) {
+          return
+        }
+        if (this.miner.isRunning()) {
+          this.miner.stop()
+        }
         this.miner.start(charity.wallet)
       }
       this.synchronise.resynchronise(null, resource.response.statusCode)
@@ -245,11 +255,11 @@ export default class MiningPage extends React.Component {
           <div className="row">
             <div className="col">
               <h1>Charity Details</h1>
-              <div>Charity code: {this.state.charityId}</div>
-              <div>Name: {this.state.name}</div>
-              <div>Country: {this.state.country}</div>
-              <div>{this.state.isOnline}</div>
-              <div>{this.state.offlineNotice}</div>
+              <div>Charity code: {this.state.charity.id}</div>
+              <div>Name: {this.state.charity.name}</div>
+              <div>Country: {this.state.charity.country}</div>
+              <div>{this.state.charity.isOnline}</div>
+              <div>{this.state.charity.offlineNotice}</div>
               <button className="btn btn-primary" onClick={this.handleCharityDetailsOff}>OK</button>
             </div>
           </div>
@@ -292,14 +302,22 @@ export default class MiningPage extends React.Component {
           <div className="container">
             <div className="row">
               <div className="col mining-section section">
-                {this.state.image1 ?
+                
+                <div className="error-message">
+                  <ToggleDisplay show={this.state.msgMinerUnexpectedTerm} tag="div">
+                    The mining process either crashed or was termined by the OS.
+                    Please click start to attempt to resume mining.
+                  </ToggleDisplay>
+                </div>
+
+                {this.state.charity.image1 ?
                   <div>
-                    <img src={this.state.image1} width="200" height="150" />
+                    <img src={this.state.charity.image1} width="200" height="150" />
                     {this.state.image2 ?
-                      <img src={this.state.image2} width="200" height="150" />
+                      <img src={this.state.charity.image2} width="200" height="150" />
                     : null}
                     {this.state.image3 ?
-                      <img src={this.state.image3} width="200" height="150" />
+                      <img src={this.state.charity.image3} width="200" height="150" />
                     : null}
                   </div>
                 : null}

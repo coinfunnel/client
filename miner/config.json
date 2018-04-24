@@ -24,7 +24,7 @@
         }
     ],
     "api": {
-        "port": 20385,                         // port for the miner API https://github.com/xmrig/xmrig/wiki/API
+        "port": 20385,                         // port for the miner API https://github.com/xmrig/xmrig/wiki/API. Sync with '../config/*.json'
         "access-token": null,                  // access token for API
         "worker-id": null                      // custom worker-id for API
     }

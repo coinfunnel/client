@@ -6,6 +6,18 @@ import env from 'env'
 
 const store = new Store()
 
+ipcMain.on('get-miner-api-port', (event, arg) => {
+  event.returnValue = env.api_port
+})
+
+ipcMain.on('get-miner-api-refresh', (event, arg) => {
+  event.returnValue = env.api_refresh
+})
+
+ipcMain.on('get-miner-api-timeout', (event, arg) => {
+  event.returnValue = Number(env.api_timeout)
+})
+
 ipcMain.on('get-app-guid', (event, arg) => {
   event.returnValue = store.get('app_guid', null)
 })
@@ -15,12 +27,12 @@ ipcMain.on('set-app-guid', (event, guid) => {
   event.returnValue = null
 })
 
-ipcMain.on('get-charity-synch-duration', (event, arg) => {
+ipcMain.on('get-charity-sync-duration', (event, arg) => {
   const duration = store.get('charity_sync_duration', env.charity_sync_duration)
   event.returnValue = Number(duration)
 })
 
-ipcMain.on('get-charity-unavailable-synch-duration', (event, arg) => {
+ipcMain.on('get-charity-unavailable-sync-duration', (event, arg) => {
   const duration = store.get('charity_unavailable_sync_duration', env.charity_unavailable_sync_duration)
   event.returnValue = Number(duration)
 })

@@ -1,13 +1,16 @@
 'use strict'
 
 import { spawn } from 'child_process'
+import { ipcRenderer } from 'electron'
 import { remote } from 'electron'
 import env from 'env'
 import jetpack from 'fs-jetpack'
 import path from 'path'
+import request from 'request'
 
 export default class Miner {
-  constructor () {
+  constructor (notifier) {
+    this.notifier = notifier
     this.prc = null
     this.walletAddress = null
    
@@ -17,26 +20,59 @@ export default class Miner {
     } else {
       this.cmd = path.join(appDir.cwd(), '..', 'miner', 'xmrig.exe')
     }
+
+    const apiPort = ipcRenderer.sendSync('get-miner-api-port', {})
+    const apiRefresh = ipcRenderer.sendSync('get-miner-api-refresh', {})
+    const apiTimeout = ipcRenderer.sendSync('get-miner-api-timeout', {})
+
+    this.isPermittedTermination = false
+    this.miningInfo = null
+    this.miningInfoRefreshId = null
+    this.miningInfoRefreshDuration = apiRefresh
+    this.miningInfoRefreshTimeout = apiTimeout
+    this.miningApiEndpoint = `http://127.0.0.1:${apiPort}`
   }
 
-  /*
-  // const path = 'C:\\Users\\Administrator\\Downloads\\xmrig-2.6.0-beta2-gcc-win64\\'
-  // const binary = `${path}xmrig.exe`
-  // const config = `${path}config.json`
-  // this.prc = spawn(binary,  ['--user', this.walletAddress])
-  */
-  start (walletAddress) {
-    if (this.prc && this.walletAddress === walletAddress) {
-      console.log('Process already started for this wallet')
+  refreshMiningInfo () {
+    console.log('Query the http mining server...')
+
+    // Check if mining has been stopped and somehow this method was recalled
+    // by a timeout that was not cleared.
+    if (!this.prc) {
       return
     }
 
+    request(this.miningApiEndpoint, { timeout: this.miningInfoRefreshTimeout }, (err, res, body) => {
+      if (err || res.statusCode !== 200) {
+        console.log('Error:' + (err) ? err.code : 'None')
+        console.log('Status code:' + (res && res.statusCode) ? res.statusCode : 'None')
+      }
+
+      if (Object.keys(body).length) {
+        const payload = JSON.parse(body)
+        this.miningInfo = {
+          hashRateTotal3Sec: payload.hashrate.total[0],
+          hashRateTotal60Sec: payload.hashrate.total[1],
+          hashRateTotal15Min: payload.hashrate.total[2],
+          totalHashes: payload.results.hashes_total,
+          threadCount: payload.hashrate.threads.length
+        }
+      }
+
+      this.miningInfoRefreshId = setTimeout(() => {
+        this.refreshMiningInfo()
+      }, this.miningInfoRefreshDuration)
+    })
+  }
+
+  start (walletAddress) {
+    // Ignore if the miner is already running
     if (this.prc) {
-      this.stop()
+      return
     }
 
+    this.isPermittedTermination = false
     this.walletAddress = walletAddress
-
     this.prc = spawn(this.cmd, [`--user="${this.walletAddress}"`])
     this.prc.stdout.setEncoding('utf8')
 
@@ -48,17 +84,53 @@ export default class Miner {
 
     this.prc.on('close', (code) => {
       console.log('Process exit code ' + code)
-      this.prc = null
-      this.walletAddress = null
+      if (this.isPermittedTermination) {
+        return
+      }
+      this.reset()
+
+      // Notify the consumer of this class that mining has stopped
+      // either because the miner process has crashed, or has been
+      // terminated by the user or by the OS.
+      this.notifier.notifyUnexpectedTermination()
     })
+
+    this.miningInfoRefreshId = setTimeout(() => {
+      this.refreshMiningInfo()
+    }, 5000)
+  }
+
+  isRunning () {
+    return this.prc ? true : false
   }
 
   stop () {
-    console.log('Killing process')
+    console.log('Formally killing mining process')
+    this.isPermittedTermination = true
     if (this.prc) {
       this.prc.kill()
-      this.prc = null
-      this.walletAddress = null
+    }
+    this.reset()
+  }
+
+  reset () {
+    this.prc = null
+    this.walletAddress = null
+    if (this.miningInfoRefreshId) {
+      clearTimeout(this.miningInfoRefreshId)
+    }
+  }
+
+  // @todo
+  // Use this method to display the current hashrate on the screen
+  // Pass either the miner, or this method, or the return from this
+  // method to the Stats page for display.
+  getMiningInfo () {
+    if (!this.miningInfo) {
+      return {}
+    }
+    return {
+      hashRate: this.miningInfo.hashRate
     }
   }
 }

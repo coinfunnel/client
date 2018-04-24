@@ -14,8 +14,8 @@ export default class Synchronise {
     this.charityUrlTimeout = ipcRenderer.sendSync('get-charity-url-timeout', {})
 
     this.synchId = null
-    this.syncDuration = ipcRenderer.sendSync('get-charity-synch-duration', {})
-    this.syncDurationRapid = ipcRenderer.sendSync('get-charity-unavailable-synch-duration', {})
+    this.syncDuration = ipcRenderer.sendSync('get-charity-sync-duration', {})
+    this.syncDurationRapid = ipcRenderer.sendSync('get-charity-unavailable-sync-duration', {})
   }
 
   getUrl () {
