@@ -196,21 +196,36 @@ export default class MiningPage extends React.Component {
     this.handleStop()
   }
 
+  setPageUpdatingDisplay () {
+    let displayUpdatingPanel = null
+    let displayActiveMiningPanel = null
+
+    if (this.state.charity && this.state.charity.id) {
+      displayUpdatingPanel = false
+      displayActiveMiningPanel = true
+    } else {
+      displayUpdatingPanel = true
+      displayActiveMiningPanel = false
+    }
+
+    this.setState({
+      msgMinerUnexpectedTerm: false,
+      panelCharityDetails: false,
+      panelErrNetworkOffline: false,
+      panelErrWebsiteTimeout: false,
+      panelErrUnknown: false,
+      panelFailCharityOffline: false,
+      panelFailUnknown: false,
+      panelMiningStatistics: false,
+      panelActiveMining: displayActiveMiningPanel,
+      panelUpdating: displayUpdatingPanel
+    })
+  }
+
   async sync () {
     try {
       console.log('SYNCING...')
-      this.setState({
-        msgMinerUnexpectedTerm: false,
-        panelCharityDetails: false,
-        panelErrNetworkOffline: false,
-        panelErrWebsiteTimeout: false,
-        panelErrUnknown: false,
-        panelFailCharityOffline: false,
-        panelFailUnknown: false,
-        panelActiveMining: false,
-        panelMiningStatistics: false,
-        panelUpdating: true
-      })
+      this.setPageUpdatingDisplay()
 
       const resource = await this.synchronise.getUrl()
       if (resource.response.statusCode !== 200) {
