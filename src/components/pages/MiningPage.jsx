@@ -254,7 +254,14 @@ export default class MiningPage extends React.Component {
               <h1>Charity Details</h1>
               <div>Charity code: {this.state.charity.id}</div>
               <div>Name: {this.state.charity.name}</div>
+              <div>Incorporation ID: {this.state.charity.incorporationId}</div>
+              <div>Incorporation date: {this.state.charity.incorporationDate}</div>
+              <div>Phone: {this.state.charity.phone}</div>
+              <div>Email: {this.state.charity.email}</div>
+              <div>Website: {this.state.charity.website}</div>
+              <div>Address: {this.state.charity.getSingleLineAddress()}</div>
               <div>Country: {this.state.charity.country}</div>
+              <div>Description: {this.state.charity.desc}</div>
               <div>{this.state.charity.isOnline}</div>
               <div>{this.state.charity.offlineNotice}</div>
               <button className="btn btn-primary" onClick={this.handleCharityDetailsOff}>OK</button>
