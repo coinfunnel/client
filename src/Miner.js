@@ -59,6 +59,7 @@ export default class Miner {
         }
       }
 
+      this.notifier.notifyMiningStateUpdate(this.miningInfo)
       this.miningInfoRefreshId = setTimeout(() => {
         this.refreshMiningInfo()
       }, this.miningInfoRefreshDuration)

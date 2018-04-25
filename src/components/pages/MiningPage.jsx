@@ -6,6 +6,8 @@ import Charity from '../../Charity'
 import Synchronise from '../../Synchronise'
 import Miner from '../../Miner'
 
+import MiningDetailsPanel from '../panels/MiningDetailsPanel.jsx'
+import CharityDetailsPanel from '../panels/CharityDetailsPanel.jsx'
 import DeleteCharityPanel from '../panels/DeleteCharityPanel.jsx'
 import UpdatingPanel from '../panels/UpdatingPanel.jsx'
 import NetworkOfflinePanel from '../panels/NetworkOfflinePanel.jsx'
@@ -19,6 +21,11 @@ export default class MiningPage extends React.Component {
     super(props)
     this.state = {
       charity: new Charity({}),
+      miningInfo: {
+        hashRateTotal60Sec: 'Please wait',
+        totalHashes: 'Please wait',
+        threadCount: 'Please wait'
+      },
       msgMinerUnexpectedTerm: false,
       panelDeleteCharity: false,
       panelCharityDetails: false,
@@ -45,6 +52,16 @@ export default class MiningPage extends React.Component {
     this.handleDeleteChallengeOff = this.handleDeleteChallengeOff.bind(this)
     this.handleDelete = this.handleDelete.bind(this)
     this.miner = new Miner(this)
+  }
+
+  notifyMiningStateUpdate (miningInfo) {
+    this.setState({
+      miningInfo: {
+        hashRateTotal60Sec: miningInfo.hashRateTotal60Sec,
+        totalHashes: miningInfo.totalHashes,
+        threadCount: miningInfo.threadCount
+      }
+    })
   }
 
   /**
@@ -249,36 +266,11 @@ export default class MiningPage extends React.Component {
         </ToggleDisplay>
 
         <ToggleDisplay show={this.state.panelCharityDetails} tag="div">
-          <div className="row">
-            <div className="col">
-              <h1>Charity Details</h1>
-              <div>Charity code: {this.state.charity.id}</div>
-              <div>Name: {this.state.charity.name}</div>
-              <div>Incorporation ID: {this.state.charity.incorporationId}</div>
-              <div>Incorporation date: {this.state.charity.incorporationDate}</div>
-              <div>Phone: {this.state.charity.phone}</div>
-              <div>Email: {this.state.charity.email}</div>
-              <div>Website: {this.state.charity.website}</div>
-              <div>Address: {this.state.charity.getSingleLineAddress()}</div>
-              <div>Country: {this.state.charity.country}</div>
-              <div>Description: {this.state.charity.desc}</div>
-              <div>{this.state.charity.isOnline}</div>
-              <div>{this.state.charity.offlineNotice}</div>
-              <button className="btn btn-primary" onClick={this.handleCharityDetailsOff}>OK</button>
-            </div>
-          </div>
+          <CharityDetailsPanel parent={this} charity={this.state.charity} />
         </ToggleDisplay>
 
         <ToggleDisplay show={this.state.panelMiningStatistics} tag="div">
-          <div className="row">
-            <div className="col">
-              <h1>Mining Statistics</h1>
-              <div>Hash rate (number of guesses per second): {this.miner.getMiningInfo().hashRateTotal60Sec}</div>
-              <div>Total hashes (total guesses): {this.miner.getMiningInfo().totalHashes}</div>
-              <div>Number of CPU cores used: {this.miner.getMiningInfo().threadCount}</div>
-              <button className="btn btn-primary" onClick={this.handleMiningStatsOff}>OK</button>
-            </div>
-          </div>
+          <MiningDetailsPanel parent={this} miningInfo={this.state.miningInfo} />
         </ToggleDisplay>
 
         <ToggleDisplay show={this.state.panelErrNetworkOffline} tag="div">
