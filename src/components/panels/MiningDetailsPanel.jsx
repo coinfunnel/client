@@ -21,6 +21,9 @@ export default class MiningDetailsPanel extends React.Component {
             <div>Hash rate (number of guesses per second): {this.props.miningInfo.hashRateTotal60Sec}</div>
             <div>Total hashes (total guesses): {this.props.miningInfo.totalHashes}</div>
             <div>Number of CPU cores used: {this.props.miningInfo.threadCount}</div>
+            <div>Total number of volunteer miners for this charity: {this.props.miningInfo.totalNoOfMiners}</div>
+            <div>Number of volunteer miners online for this charity: {this.props.miningInfo.totalMinersOnline}</div>
+            <div>Total amount earned for this charity: {this.props.miningInfo.totalPayouts}</div>
             <button className="btn btn-primary" onClick={this.handleMiningStatsOff}>OK</button>
           </div>
         </div>

@@ -2,14 +2,14 @@
   "name": "coinfunnel",
   "productName": "CoinFunnel Client",
   "description": "Client for the CoinFunnel cryptocurrency funneling service",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "author": "CoinFunnel",
   "copyright": "© 2018, CoinFunnel",
   "homepage": "https://coinfunnel.org",
   "main": "app/background.js",
   "build": {
-    "appId": "com.coinfunnel.client.v0.0.1",
+    "appId": "com.coinfunnel.client.v0.0.2",
     "productName": "CoinFunnel Client",
     "win": {
       "target": "nsis"
@@ -21,7 +21,6 @@
     ],
     "extraResources": [
       "miner/config.json",
-      "miner/start.cmd",
       "miner/xmrig.exe"
     ],
     "directories": {

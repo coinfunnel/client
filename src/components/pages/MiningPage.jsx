@@ -24,7 +24,10 @@ export default class MiningPage extends React.Component {
       miningInfo: {
         hashRateTotal60Sec: 'Please wait',
         totalHashes: 'Please wait',
-        threadCount: 'Please wait'
+        threadCount: 'Please wait',
+        totalNoOfMiners: 0,
+        totalMinersOnline: 0,
+        totalPayouts: 0
       },
       msgMinerUnexpectedTerm: false,
       panelDeleteCharity: false,
@@ -38,7 +41,8 @@ export default class MiningPage extends React.Component {
       panelMiningStatistics: false,
       panelUpdating: false,
       disableStartBtn: false,
-      disableStopBtn: false
+      disableStopBtn: false,
+      isStable: false
     }
     this.synchronise = null
     
@@ -70,58 +74,50 @@ export default class MiningPage extends React.Component {
   notifyUnexpectedTermination () {
     this.handleStop()
     this.setState({
+      isStable: false,
       msgMinerUnexpectedTerm: true
     })
   }
 
   handleError (code) {
+    this.setState({ isStable: false })
+    this.togglePanelsOff()
+
     if (code === 'ENOTFOUND') {
-      this.setState({ 
-        panelUpdating: false,
-        panelErrNetworkOffline: true
-      })
+      this.setState({ panelErrNetworkOffline: true })
       return
     }
 
     if (code === 'ETIMEDOUT' || code === 'ECONNREFUSED') {
-      this.setState({
-        panelUpdating: false,
-        panelErrWebsiteTimeout: true
-      })
+      this.setState({ panelErrWebsiteTimeout: true })
       return
     }
 
     // @todo - turn off sync for this?
-    this.setState({
-      panelUpdating: false,
-      panelErrUnknown: true,
-      panelActiveMining: true
-    })
+    this.setState({ panelErrUnknown: true })
   }
 
   handleFail (statusCode) {
+    this.setState({ isStable: false })
+
     if (statusCode === 404) {
       this.props.history.push(`/gone`)
       return
     }
 
     if (statusCode === 422) {
-      this.setState({ 
-        panelUpdating: false,
-        panelFailCharityOffline: true
-      })
+      this.togglePanelsOff()
+      this.setState({ panelFailCharityOffline: true })
       return
     }
 
     // @todo what to display here?
-    this.setState({ 
-      panelUpdating: false,
-      panelFailUnknown: true
-    })
+    this.togglePanelsOff()
+    this.setState({ panelFailUnknown: true })
   }
 
   handleStart () {
-    this.setState({ 
+    this.setState({
       disableStartBtn: true,
       disableStopBtn: false
     })
@@ -138,31 +134,23 @@ export default class MiningPage extends React.Component {
   }
 
   handleCharityDetails () {
-    this.setState({ 
-      panelActiveMining: false,
-      panelCharityDetails: true
-    })
+    this.togglePanelsOff()
+    this.setState({ panelCharityDetails: true })
   }
 
   handleCharityDetailsOff () {
-    this.setState({ 
-      panelActiveMining: true,
-      panelCharityDetails: false
-    })
+    this.togglePanelsOff()
+    this.setState({ panelActiveMining: true })
   }
 
   handleMiningStats () {
-    this.setState({ 
-      panelActiveMining: false,
-      panelMiningStatistics: true
-    })
+    this.togglePanelsOff()
+    this.setState({ panelMiningStatistics: true })
   }
 
   handleMiningStatsOff () {
-    this.setState({ 
-      panelActiveMining: true,
-      panelMiningStatistics: false
-    })
+    this.togglePanelsOff()
+    this.setState({ panelActiveMining: true })
   }
 
   handleDelete () {
@@ -172,17 +160,13 @@ export default class MiningPage extends React.Component {
   }
 
   handleDeleteChallenge () {
-    this.setState({
-      panelActiveMining: false,
-      panelDeleteCharity: true
-    })
+    this.togglePanelsOff()
+    this.setState({ panelDeleteCharity: true })
   }
 
   handleDeleteChallengeOff () {
-    this.setState({ 
-      panelActiveMining: true,
-      panelDeleteCharity: false
-    })
+    this.togglePanelsOff()
+    this.setState({ panelActiveMining: true })
   }
 
   componentDidMount () {
@@ -196,36 +180,29 @@ export default class MiningPage extends React.Component {
     this.handleStop()
   }
 
-  setPageUpdatingDisplay () {
-    let displayUpdatingPanel = null
-    let displayActiveMiningPanel = null
-
-    if (this.state.charity && this.state.charity.id) {
-      displayUpdatingPanel = false
-      displayActiveMiningPanel = true
-    } else {
-      displayUpdatingPanel = true
-      displayActiveMiningPanel = false
-    }
-
+  togglePanelsOff () {
     this.setState({
       msgMinerUnexpectedTerm: false,
-      panelCharityDetails: false,
       panelErrNetworkOffline: false,
       panelErrWebsiteTimeout: false,
       panelErrUnknown: false,
-      panelFailCharityOffline: false,
       panelFailUnknown: false,
+      panelFailCharityOffline: false,
+      panelDeleteCharity: false,
       panelMiningStatistics: false,
-      panelActiveMining: displayActiveMiningPanel,
-      panelUpdating: displayUpdatingPanel
+      panelCharityDetails: false,
+      panelActiveMining: false,
+      panelUpdating: false
     })
   }
 
   async sync () {
     try {
       console.log('SYNCING...')
-      this.setPageUpdatingDisplay()
+      if (!this.state.isStable) {
+        this.togglePanelsOff()
+        this.setState({ panelUpdating: true })
+      }
 
       const resource = await this.synchronise.getUrl()
       if (resource.response.statusCode !== 200) {
@@ -244,20 +221,22 @@ export default class MiningPage extends React.Component {
           }
         }
 
+        if (!this.state.isStable) {
+          this.togglePanelsOff()
+          this.setState({ panelActiveMining: true })
+        }
         this.setState({
           charity: charity,
-          panelUpdating: false,
-          panelActiveMining: true
+          isStable: true
         })
 
-        // Update the miner.
-        if (this.miner.isRunning() && !isWalletChanged) {
-          return
-        }
-        if (this.miner.isRunning()) {
+        // Update the miner if necessary
+        if (!this.miner.isRunning()) {
+          this.miner.start(charity.wallet)
+        } else if (this.miner.isRunning() && isWalletChanged) {
           this.miner.stop()
+          this.miner.start(charity.wallet)
         }
-        this.miner.start(charity.wallet)
       }
       this.synchronise.resynchronise(null, resource.response.statusCode)
 
